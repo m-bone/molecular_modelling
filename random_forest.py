@@ -1,4 +1,4 @@
-
+import pickle
 import numpy as np
 import pandas as pd
 from imblearn.under_sampling import RandomUnderSampler
@@ -44,8 +44,9 @@ def train_random_forest(
     # Remove columns with no variance
     desc_df = desc_df.loc[:, desc_df.var() != 0]
 
-    # Sort columns by variance
+    # Sort columns by variance and remove gdb_tag
     desc_df = desc_df[desc_df.var().sort_values(ascending=False).index]
+    desc_df = desc_df.drop(columns=['gdb_tag'], errors='ignore')
 
     # Select first 60 columns
     desc_df = desc_df.iloc[:, :60]
@@ -71,6 +72,16 @@ def train_random_forest(
     print(f"Predicting {prop_target} at {target_value}...")
     print("Accuracy: ", accuracy_score(y_test, y_pred))
     print(classification_report(y_test, y_pred))
+
+    # Save the model to a file
+    model_filename = f"rf_model_{prop_target}_{target_value}.pkl"
+    with open(model_filename, 'wb') as model_file:
+        pickle.dump(clf, model_file)
+
+    # Output the column names of the descriptors used
+    # Needed as the model is trained on columns sorted by variance
+    with open(f"rf_columns_{prop_target}_{target_value}.pkl", 'wb') as f:
+        pickle.dump(desc_df.columns.tolist(), f)
 
 if __name__ == "__main__":
     from utils import create_connection

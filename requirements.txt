@@ -1,0 +1,12 @@
+flask
+flask-restful
+requests
+debugpy # Required for debugging.
+gunicorn
+
+pandas
+rdkit
+
+# Satisfies loading pickles made with reference to these packages
+sqlalchemy 
+imblearn
